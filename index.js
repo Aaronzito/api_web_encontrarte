@@ -35,6 +35,30 @@ app.listen(5000, () => {
     console.log('Servidor corriendo en el puerto 4000');
 });
 
+//-------------------Images-----------------------------------------------------------
+
+
+
+app.put('/imageupdate', upload.single('image'), (req, res) => {
+    const { Id } = req.body;
+    if (!id || !req.file) {
+        return res.status(400).json({ message: 'imagen requerida' });
+    }
+
+    const imageUrl = req.file.path;
+
+    db.query('UPDATE users SET image = ? WHERE id = ?', [imageUrl, Id], (err, result) => {
+        if (err) {
+            console.error('Error al actualizar la imagen:', err);
+            return res.status(500).json({ message: 'Error al actualizar la imagen' });
+        }
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+        res.status(200).json({ message: 'Imagen actualizada exitosamente', imageUrl });
+    });
+});
+
 
 //-------------------------------------------------------------------------------------
 
