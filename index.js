@@ -38,23 +38,20 @@ app.listen(5000, () => {
 //-------------------Images-----------------------------------------------------------
 
 
+app.put('/imageupdate', (req, res) => {
+    const { id, image } = req.body;  
 
-app.put('/imageupdate', async (req, res) => {
-    try {
-        const { Id, image } = req.body; 
-
-        if (!Id || !image) {
-            return res.status(400).json({ error: 'Faltan datos requeridos' });
-        }
-
-        
-        await actualizarImagenEnDB(Id, image); 
-
-        res.status(200).json({ message: 'Imagen actualizada correctamente' });
-    } catch (error) {
-        console.error('Error al actualizar la imagen:', error);
-        res.status(500).json({ error: 'Error en el servidor' });
+    if (!id || !image) {
+        return res.status(400).json({ error: 'Faltan datos requeridos' });
     }
+
+    db.query('UPDATE users SET image = ? WHERE id = ?', [image, id], (err, result) => {
+        if (err) {
+            console.error('Error al actualizar la imagen:', err);
+            return res.status(500).json({ error: 'Error en el servidor' });
+        }
+        res.status(200).json({ message: 'Imagen actualizada correctamente' });
+    });
 });
 
 
