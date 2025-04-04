@@ -239,22 +239,29 @@ app.get('/auctions/:id', (req, res) => {
     });
 });
 
-app.get('/products/:id', (req, res) => {
-    const { id } = req.params;
-    db.query('SELECT * FROM artworks WHERE artistid = ?', [id], (err, results) => {
-        if (err) return res.status(500).send(err);
-        res.send(results);
-    });
-});
 app.get('/sales/:id', (req, res) => {
     const { id } = req.params;
 
     const query=`
-    Select d.*, ar.*, at.*
+    SELECT 
+    d.*, 
+    ar.id AS artworkId, 
+    ar.title AS artworkTitle, 
+    ar.image AS artworkImage,  -- Imagen de la obra
+    at.id AS artistId, 
+    at.name AS artistName, 
+    at.image AS artistImage,  -- Imagen del artista
+    u.id AS buyerId,  
+    u.name AS buyerName,  
+    u.image AS buyerImage,  -- Imagen del comprador
+    u.address AS buyerAddress,  
+    u.city AS buyerCity  
     FROM direct_transaction d
     JOIN artworks ar ON d.artworkId = ar.id
-    JOIN users at ON ar.artistId = at.id
-    WHERE d.artistid = ?
+    JOIN users at ON ar.artistId = at.id  -- Artista
+    JOIN users u ON d.userid = u.id  -- Comprador
+    WHERE d.artistid = ?;
+
     `
 
     db.query(query, [id], (err, results) => {
