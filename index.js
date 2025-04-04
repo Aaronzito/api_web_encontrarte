@@ -198,6 +198,28 @@ app.get('/artworks', (req, res) => {
         res.status(200).json(artworks);
     });
 });
+app.delete('/delete/:id', (req, res) => {
+    const { id } = req.params;
+    
+    // Primero eliminamos los registros en direct_transaction que dependen del artwork
+    db.query('DELETE FROM direct_transaction WHERE artworkid = ?', [id], (err) => {
+        if (err) return res.status(500).send(err);
+        
+        // Luego eliminamos el artwork
+        db.query('DELETE FROM artworks WHERE id = ?', [id], (err, results) => {
+            if (err) return res.status(500).send(err);
+            res.send(results);
+        });
+    });
+});
+
+app.delete('/delete_auction/:id', (req, res) => {
+    const { id } = req.params;
+    db.query('DELETE FROM auctions WHERE id = ?', [id], (err, results) => {
+        if (err) return res.status(500).send(err);
+        res.send(results);
+    });
+});
 
 //------------------------------------------------------------------------------------------------------------------------------------------------------
 
